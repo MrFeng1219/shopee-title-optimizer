@@ -37,7 +37,7 @@
         <div class="flex gap-3">
           <OptimizeButton
             @click="handleOptimize"
-            :loading="isLoading"
+            :loading="isLoading && totalProgress > 0"
             :disabled="!canOptimize || selectedSites.length === 0"
             :progress="progressText"
             buttonText="开始优化"
@@ -99,9 +99,10 @@
                 :site="site"
                 :versions="optimizedResults[site.code] || null"
                 :isCopied="copiedCode === site.code"
-                :isLoading="!optimizedResults[site.code]"
+                :isLoading="loadingSites.includes(site.code)"
                 :delay="index * 100"
                 @copy="handleCopySingle"
+                @regenerate="handleRegenerateSingle"
               />
             </transition-group>
           </div>
@@ -136,6 +137,7 @@
                 :isCopied="copiedCode === site.code"
                 :delay="index * 80"
                 @copy="handleCopySingle"
+                @regenerate="handleRegenerateSingle"
               />
             </transition-group>
           </div>
@@ -168,7 +170,7 @@ import OptimizeButton from './components/OptimizeButton.vue'
 import SiteCard from './components/SiteCard.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
 import { SHOPEE_SITES } from './utils/constants.js'
-import { optimizeAllSitesAsync } from './services/aiService.js'
+import { optimizeAllSitesAsync, optimizeTitle } from './services/aiService.js'
 
 const originalTitle = ref('')
 const optimizedResults = ref({})
@@ -181,6 +183,7 @@ const showSettings = ref(false)
 const copiedCode = ref('')
 const copiedAll = ref(false)
 const selectedSites = ref(['TW'])
+const loadingSites = ref([])
 
 const inputError = computed(() => {
   if (originalTitle.value && originalTitle.value.length < 3) {
@@ -260,6 +263,28 @@ function handleOptimize() {
       }
     }
   )
+}
+
+async function handleRegenerateSingle(code) {
+  if (!apiKey.value) {
+    errorMessage.value = '请先设置阿里云百炼API Key'
+    showSettings.value = true
+    return
+  }
+
+  const site = SHOPEE_SITES.find(s => s.code === code)
+  if (!site) return
+
+  loadingSites.value.push(code)
+
+  try {
+    const versions = await optimizeTitle(originalTitle.value, site, apiKey.value)
+    optimizedResults.value[code] = versions
+  } catch (error) {
+    errorMessage.value = `${site.name} 优化失败: ${error.message}`
+  } finally {
+    loadingSites.value = loadingSites.value.filter(c => c !== code)
+  }
 }
 
 function handleCopySingle(code, title) {

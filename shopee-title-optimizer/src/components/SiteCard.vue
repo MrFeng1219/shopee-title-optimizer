@@ -70,17 +70,25 @@
             </transition>
           </div>
 
-          <button
-            @click="$emit('copy', site.code, versions[selectedVersion].title)"
-            class="mt-3 w-full py-2.5 rounded-xl text-sm font-medium transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
-            :class="[
-              isCopied
-                ? 'bg-green-600 text-white'
-                : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 shadow-md hover:shadow-lg'
-            ]"
-          >
-            {{ isCopied ? '✓ 已复制' : '📋 复制此版本' }}
-          </button>
+          <div class="flex gap-2 mt-3">
+            <button
+              @click="$emit('copy', site.code, versions[selectedVersion].title)"
+              class="flex-1 py-2 rounded-xl text-sm font-medium transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+              :class="[
+                isCopied
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 shadow-md'
+              ]"
+            >
+              {{ isCopied ? '✓ 已复制' : '📋 复制' }}
+            </button>
+            <button
+              @click="$emit('regenerate', site.code)"
+              class="flex-1 py-2 rounded-xl text-sm font-medium transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] bg-gray-100 hover:bg-gray-200 text-gray-600"
+            >
+              🔄 重新生成
+            </button>
+          </div>
         </div>
 
         <div v-else key="waiting" class="text-center py-6">
@@ -121,7 +129,7 @@ const props = defineProps({
   }
 })
 
-defineEmits(['copy'])
+defineEmits(['copy', 'regenerate'])
 
 const selectedVersion = ref(0)
 

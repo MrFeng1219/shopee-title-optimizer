@@ -1,40 +1,40 @@
 export const SHOPEE_SITES = [
-  { code: 'TW', name: '台湾', flag: '🇹🇼', currency: 'TWD', language: '中文' },
-  { code: 'MY', name: '马来西亚', flag: '🇲🇾', currency: 'MYR', language: '英语' },
-  { code: 'SG', name: '新加坡', flag: '🇸🇬', currency: 'SGD', language: '英语' },
-  { code: 'PH', name: '菲律宾', flag: '🇵🇭', currency: 'PHP', language: '英语' },
-  { code: 'TH', name: '泰国', flag: '🇹🇭', currency: 'THB', language: '泰语' },
-  { code: 'VN', name: '越南', flag: '🇻🇳', currency: 'VND', language: '越南语' },
-  { code: 'ID', name: '印度尼西亚', flag: '🇮🇩', currency: 'IDR', language: '印尼语' }
+  { code: 'TW', name: '台湾', flag: '🇹🇼', currency: 'TWD', language: 'zh-TW' },
+  { code: 'MY', name: '马来西亚', flag: '🇲🇾', currency: 'MYR', language: 'en-MY' },
+  { code: 'SG', name: '新加坡', flag: '🇸🇬', currency: 'SGD', language: 'en-SG' },
+  { code: 'PH', name: '菲律宾', flag: '🇵🇭', currency: 'PHP', language: 'en-PH' },
+  { code: 'TH', name: '泰国', flag: '🇹🇭', currency: 'THB', language: 'th-TH' },
+  { code: 'VN', name: '越南', flag: '🇻🇳', currency: 'VND', language: 'vi-VN' },
+  { code: 'ID', name: '印度尼西亚', flag: '🇮🇩', currency: 'IDR', language: 'id-ID' }
 ]
 
-export const PROMPT_TEMPLATE = `You are a Shopee marketplace expert. Optimize the following product title for the {SITE_NAME} ({SITE_CODE}) Shopee marketplace.
+export const PROMPT_TEMPLATE = `You are a Shopee marketplace expert for {SITE_NAME} market.
 
 Original Title: {ORIGINAL_TITLE}
 
-Requirements:
-1. Keep the title within 50-120 characters for Shopee SEO
-2. Include popular search keywords for {SITE_NAME} market
-3. Use local language style and search habits
-4. Highlight key product features
-5. Add relevant emoji icons at appropriate positions (1-3 emojis)
-6. Provide EXACTLY 3 different versions with distinct advantages
-7. For each version, provide a brief Chinese explanation of the optimization strategy
+CRITICAL REQUIREMENTS:
+1. The optimized title MUST be written in {SITE_LANGUAGE} ONLY - do NOT mix in Chinese characters
+2. Keep the title within 50-120 characters for Shopee SEO
+3. Include popular local search keywords for {SITE_NAME} market
+4. Use local language style, search habits and expressions
+5. Add 1-3 relevant emoji icons to make it attractive
+6. Provide EXACTLY 3 different versions with distinct styles/approaches
 
 Output format (MUST follow exactly):
-[Version 1] <optimized title with emoji>
-<中文释义: xxx>
-[Version 2] <optimized title with emoji>
-<中文释义: xxx>
-[Version 3] <optimized title with emoji>
-<中文释义: xxx>
+[Version 1] <optimized title in {SITE_LANGUAGE} only, with emoji>
+<Explanation: brief description in Chinese of the optimization approach>
+[Version 2] <optimized title in {SITE_LANGUAGE} only, with emoji>
+<Explanation: brief description in Chinese of the optimization approach>
+[Version 3] <optimized title in {SITE_LANGUAGE} only, with emoji>
+<Explanation: brief description in Chinese of the optimization approach>
 
-Do NOT include any other text.`
+IMPORTANT: The title itself must contain ONLY {SITE_LANGUAGE} text and emojis. No Chinese characters in the title lines.`
 
 export function buildPrompt(site, originalTitle) {
   return PROMPT_TEMPLATE
     .replace('{SITE_NAME}', site.name)
     .replace('{SITE_CODE}', site.code)
+    .replace('{SITE_LANGUAGE}', site.language)
     .replace('{ORIGINAL_TITLE}', originalTitle)
 }
 
@@ -61,7 +61,7 @@ export function parseMultiVersions(response) {
       continue
     }
 
-    const explanationMatch = trimmedLine.match(/^<中文释义:\s*(.+)>$/)
+    const explanationMatch = trimmedLine.match(/^<Explanation:\s*(.+)>$/i)
     if (explanationMatch && currentVersion) {
       currentVersion.explanation = explanationMatch[1].trim()
     }
