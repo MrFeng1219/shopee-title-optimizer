@@ -17,7 +17,7 @@ CRITICAL REQUIREMENTS:
 2. Keep the title within 50-120 characters for Shopee SEO
 3. Include popular local search keywords for {SITE_NAME} market
 4. Use local language style, search habits and expressions
-5. Add 1-3 relevant emoji icons to make it attractive
+5. Add at most 1-2 relevant emoji icons to make it attractive (do NOT overuse emojis)
 6. Provide EXACTLY 3 different versions with distinct styles/approaches
 
 Output format (MUST follow exactly):
