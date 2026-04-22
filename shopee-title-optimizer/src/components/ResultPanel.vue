@@ -4,11 +4,11 @@
       v-for="site in sites"
       :key="site.code"
       :site="site"
-      :optimizedTitle="results[site.code]"
+      :versions="results[site.code] || []"
       :loading="loading && currentProgress < totalProgress"
       :isCopied="copiedCode === site.code"
       :isActive="selectedCode === site.code"
-      @copy="$emit('copy', site.code)"
+      @copy="$emit('copy', site.code, $event)"
     />
   </div>
 </template>

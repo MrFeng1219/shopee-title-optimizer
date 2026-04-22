@@ -1,6 +1,7 @@
-import { buildPrompt } from '../utils/constants.js'
+import { buildPrompt, parseMultiVersions } from '../utils/constants.js'
 
-const API_ENDPOINT = 'https://api.openai.com/v1/chat/completions'
+const API_ENDPOINT = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'
+const MODEL = 'qwen-plus'
 
 export async function optimizeTitle(originalTitle, site, apiKey) {
   const prompt = buildPrompt(site, originalTitle)
@@ -12,19 +13,19 @@ export async function optimizeTitle(originalTitle, site, apiKey) {
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: 'gpt-4o',
+      model: MODEL,
       messages: [
         {
           role: 'system',
-          content: 'You are a helpful assistant that optimizes product titles for e-commerce platforms.'
+          content: 'You are a helpful assistant that optimizes product titles for Shopee e-commerce platform. Follow the output format exactly as specified.'
         },
         {
           role: 'user',
           content: prompt
         }
       ],
-      max_tokens: 200,
-      temperature: 0.7
+      max_tokens: 500,
+      temperature: 0.8
     })
   })
 
@@ -34,23 +35,25 @@ export async function optimizeTitle(originalTitle, site, apiKey) {
   }
 
   const data = await response.json()
-  return data.choices[0]?.message?.content?.trim() || ''
+  const rawResponse = data.choices[0]?.message?.content?.trim() || ''
+  return parseMultiVersions(rawResponse)
 }
 
-export async function optimizeAllSites(originalTitle, sites, apiKey, onProgress) {
-  const results = {}
+export function optimizeAllSitesAsync(originalTitle, selectedSites, apiKey, onResult, onProgress) {
+  let completedCount = 0
+  const totalCount = selectedSites.length
 
-  for (let i = 0; i < sites.length; i++) {
-    const site = sites[i]
-    try {
-      results[site.code] = await optimizeTitle(originalTitle, site, apiKey)
-    } catch (error) {
-      results[site.code] = `优化失败: ${error.message}`
-    }
-    if (onProgress) {
-      onProgress(i + 1, sites.length)
-    }
-  }
-
-  return results
+  selectedSites.forEach(site => {
+    optimizeTitle(originalTitle, site, apiKey)
+      .then(versions => {
+        completedCount++
+        onResult(site.code, versions)
+        onProgress(completedCount, totalCount)
+      })
+      .catch(error => {
+        completedCount++
+        onResult(site.code, [{ version: 1, title: `优化失败: ${error.message}` }])
+        onProgress(completedCount, totalCount)
+      })
+  })
 }

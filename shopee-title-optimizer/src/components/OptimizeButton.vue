@@ -2,11 +2,11 @@
   <button
     @click="$emit('click')"
     :disabled="disabled || loading"
+    class="flex-1 py-3 px-6 rounded-xl font-medium transition-all duration-300 shadow-md transform hover:scale-[1.02] active:scale-[0.98]"
     :class="[
-      'w-full py-3 px-6 rounded-lg font-medium transition-all',
       disabled || loading
-        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-        : 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl'
+        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+        : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white hover:shadow-lg'
     ]"
   >
     <span v-if="loading" class="flex items-center justify-center gap-2">
@@ -14,9 +14,9 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
       </svg>
-      优化中... {{ progress }}
+      {{ progress }}
     </span>
-    <span v-else>{{ buttonText }}</span>
+    <span v-else>🚀 {{ buttonText }}</span>
   </button>
 </template>
 
