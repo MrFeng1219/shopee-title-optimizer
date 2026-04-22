@@ -22,13 +22,13 @@ CRITICAL REQUIREMENTS:
 
 Output format (MUST follow exactly):
 [Version 1] <optimized title in {SITE_LANGUAGE} only, with emoji>
-<Explanation: brief description in Chinese of the optimization approach>
+<中文释义: 简要说明此版本的优化策略>
 [Version 2] <optimized title in {SITE_LANGUAGE} only, with emoji>
-<Explanation: brief description in Chinese of the optimization approach>
+<中文释义: 简要说明此版本的优化策略>
 [Version 3] <optimized title in {SITE_LANGUAGE} only, with emoji>
-<Explanation: brief description in Chinese of the optimization approach>
+<中文释义: 简要说明此版本的优化策略>
 
-IMPORTANT: The title itself must contain ONLY {SITE_LANGUAGE} text and emojis. No Chinese characters in the title lines.`
+IMPORTANT: The title itself must contain ONLY {SITE_LANGUAGE} text and emojis. No Chinese characters in the title lines. Only the explanation line should be in Chinese.`
 
 export function buildPrompt(site, originalTitle) {
   return PROMPT_TEMPLATE
@@ -61,7 +61,7 @@ export function parseMultiVersions(response) {
       continue
     }
 
-    const explanationMatch = trimmedLine.match(/^<Explanation:\s*(.+)>$/i)
+    const explanationMatch = trimmedLine.match(/^<中文释义:\s*(.+)>$/i)
     if (explanationMatch && currentVersion) {
       currentVersion.explanation = explanationMatch[1].trim()
     }

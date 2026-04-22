@@ -27,7 +27,9 @@
             <div class="absolute inset-0 border-4 border-green-200 rounded-full"></div>
             <div class="absolute inset-0 border-4 border-green-500 rounded-full border-t-transparent animate-spin"></div>
           </div>
-          <p class="text-sm text-green-600 font-medium">正在优化...</p>
+          <p class="text-sm text-green-600 font-medium">
+            {{ isRegenerating ? '正在重新生成...' : '正在优化...' }}
+          </p>
         </div>
 
         <div v-else-if="versions && versions.length > 0" key="content" class="space-y-3">
@@ -41,7 +43,6 @@
                 ? 'border-green-400 bg-gradient-to-r from-green-50 to-emerald-50 shadow-sm'
                 : 'border-gray-100 hover:border-green-200'
             ]"
-            :style="{ animationDelay: (idx * 100) + 'ms' }"
           >
             <div class="flex items-center gap-2 mb-2">
               <span
@@ -84,7 +85,8 @@
             </button>
             <button
               @click="$emit('regenerate', site.code)"
-              class="flex-1 py-2 rounded-xl text-sm font-medium transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] bg-gray-100 hover:bg-gray-200 text-gray-600"
+              :disabled="isLoading"
+              class="flex-1 py-2 rounded-xl text-sm font-medium transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] bg-gray-100 hover:bg-gray-200 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               🔄 重新生成
             </button>
@@ -92,7 +94,11 @@
         </div>
 
         <div v-else key="waiting" class="text-center py-6">
-          <p class="text-xs text-gray-400">等待优化...</p>
+          <div class="relative w-12 h-12 mx-auto mb-3">
+            <div class="absolute inset-0 border-4 border-green-200 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-green-500 rounded-full border-t-transparent animate-spin"></div>
+          </div>
+          <p class="text-sm text-green-600 font-medium">正在重新生成...</p>
         </div>
       </transition>
     </div>
@@ -116,6 +122,10 @@ const props = defineProps({
     default: false
   },
   isLoading: {
+    type: Boolean,
+    default: false
+  },
+  isRegenerating: {
     type: Boolean,
     default: false
   },

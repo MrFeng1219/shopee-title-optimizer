@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-    <div class="max-w-4xl mx-auto px-4 py-6">
+    <div class="max-w-4xl mx-auto px-4 py-6 pb-24">
       <header class="text-center mb-6">
         <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent mb-2">
           ✨ Shopee爆款标题神器 ✨
@@ -42,19 +42,6 @@
             :progress="progressText"
             buttonText="开始优化"
           />
-
-          <button
-            v-if="hasResults && !isLoading"
-            @click="handleCopyAll"
-            class="flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-300 shadow-sm transform hover:scale-[1.02] active:scale-[0.98]"
-            :class="[
-              copiedAll
-                ? 'bg-green-600 text-white'
-                : 'bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-700'
-            ]"
-          >
-            {{ copiedAll ? '✓ 已复制!' : '📋 复制全部' }}
-          </button>
         </div>
 
         <div v-if="errorMessage" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
@@ -135,6 +122,8 @@
                 :site="site"
                 :versions="optimizedResults[site.code] || null"
                 :isCopied="copiedCode === site.code"
+                :isLoading="loadingSites.includes(site.code)"
+                :isRegenerating="loadingSites.includes(site.code)"
                 :delay="index * 80"
                 @copy="handleCopySingle"
                 @regenerate="handleRegenerateSingle"
@@ -153,6 +142,29 @@
         </button>
       </footer>
     </div>
+
+    <transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0 translate-y-4 scale-90"
+      enter-to-class="opacity-100 translate-y-0 scale-100"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100 translate-y-0 scale-100"
+      leave-to-class="opacity-0 translate-y-4 scale-90"
+    >
+      <button
+        v-if="hasResults && !isLoading"
+        @click="handleCopyAll"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 py-3 px-6 rounded-full font-medium shadow-lg flex items-center gap-2 z-50 transition-all duration-300 transform hover:scale-105 active:scale-95"
+        :class="[
+          copiedAll
+            ? 'bg-green-600 text-white'
+            : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-green-200 hover:shadow-green-300'
+        ]"
+      >
+        <span v-if="copiedAll">✓ 已复制!</span>
+        <span v-else>📋 复制全部标题</span>
+      </button>
+    </transition>
 
     <SettingsPanel
       :isOpen="showSettings"
@@ -272,10 +284,13 @@ async function handleRegenerateSingle(code) {
     return
   }
 
+  if (loadingSites.value.includes(code)) return
+
   const site = SHOPEE_SITES.find(s => s.code === code)
   if (!site) return
 
   loadingSites.value.push(code)
+  optimizedResults.value[code] = null
 
   try {
     const versions = await optimizeTitle(originalTitle.value, site, apiKey.value)
